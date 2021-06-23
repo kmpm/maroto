@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/johnfercher/maroto"
 	"github.com/johnfercher/maroto/pkg/color"
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/pdf"
@@ -681,6 +682,17 @@ func ExamplePdfMaroto_SetCompression() {
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 
 	m.SetCompression(false)
+
+	// Do more things and save...
+}
+
+func ExampleNewMarotoModule() {
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+
+	// Do things
+	m.GetPageMargins()
+
+	maroto.Add("image", maroto.Rect(0, 0, 80, true))
 
 	// Do more things and save...
 }

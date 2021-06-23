@@ -7,6 +7,7 @@ import (
 	"github.com/johnfercher/maroto/pkg/color"
 
 	"github.com/johnfercher/maroto/internal"
+	_ "github.com/johnfercher/maroto/modules/standard"
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/props"
 	"github.com/jung-kurt/gofpdf"

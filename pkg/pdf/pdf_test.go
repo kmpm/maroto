@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/johnfercher/maroto"
 	"github.com/johnfercher/maroto/internal"
 	"github.com/johnfercher/maroto/pkg/color"
 
@@ -2073,4 +2074,11 @@ func TestPdfMaroto_SetCompression(t *testing.T) {
 
 	// Assert
 	Fpdf.AssertCalled(t, "SetCompression", false)
+}
+
+func TestFpdfMaroto_ModuleImage(t *testing.T) {
+	Fpdf := baseFpdfTest(10.0, 10.0, 10.0)
+	newMarotoTest(Fpdf, nil, nil, nil, nil, nil, nil, nil)
+	maroto.Add("text", maroto.String("apa"))
+	t.Fail()
 }
