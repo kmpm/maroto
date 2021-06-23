@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
+	"io"
+
 	"github.com/google/uuid"
 	"github.com/johnfercher/maroto/internal/fpdf"
 	"github.com/johnfercher/maroto/pkg/consts"
@@ -15,6 +17,7 @@ import (
 type Image interface {
 	AddFromFile(path string, cell Cell, prop props.Rect) (err error)
 	AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, extension consts.Extension) (err error)
+	AddFromReader(reader io.Reader, cell Cell, prop props.Rect, extension consts.Extension) (err error)
 }
 
 type image struct {
@@ -45,11 +48,8 @@ func (s *image) AddFromFile(path string, cell Cell, prop props.Rect) error {
 	return nil
 }
 
-// AddFromBase64 use a base64 string to add to PDF
-func (s *image) AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, extension consts.Extension) error {
+func (s *image) AddFromReader(reader io.Reader, cell Cell, prop props.Rect, extension consts.Extension) (err error) {
 	imageId, _ := uuid.NewRandom()
-
-	ss, _ := base64.StdEncoding.DecodeString(stringBase64)
 
 	info := s.pdf.RegisterImageOptionsReader(
 		imageId.String(),
@@ -57,15 +57,21 @@ func (s *image) AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, e
 			ReadDpi:   false,
 			ImageType: string(extension),
 		},
-		bytes.NewReader(ss),
+		reader,
 	)
 
 	if info == nil {
-		return errors.New("Could not register image options, maybe path/name is wrong")
+		return errors.New("could not register image options, maybe path/name is wrong")
 	}
 
 	s.addImageToPdf(imageId.String(), info, cell, prop)
 	return nil
+}
+
+// AddFromBase64 use a base64 string to add to PDF
+func (s *image) AddFromBase64(stringBase64 string, cell Cell, prop props.Rect, extension consts.Extension) error {
+	ss, _ := base64.StdEncoding.DecodeString(stringBase64)
+	return s.AddFromReader(bytes.NewReader(ss), cell, prop, extension)
 }
 
 func (s *image) addImageToPdf(imageLabel string, info *gofpdf.ImageInfoType, cell Cell, prop props.Rect) {

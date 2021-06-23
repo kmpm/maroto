@@ -2,6 +2,7 @@ package pdf
 
 import (
 	"bytes"
+	"io"
 
 	"github.com/johnfercher/maroto/internal/fpdf"
 	"github.com/johnfercher/maroto/pkg/color"
@@ -30,6 +31,7 @@ type Maroto interface {
 	// Inside Col/Row Components
 	Text(text string, prop ...props.Text)
 	FileImage(filePathName string, prop ...props.Rect) (err error)
+	ReaderImage(reader io.Reader, extension consts.Extension, prop ...props.Rect) (err error)
 	Base64Image(base64 string, extension consts.Extension, prop ...props.Rect) (err error)
 	Barcode(code string, prop ...props.Barcode) error
 	QrCode(code string, prop ...props.Rect)
@@ -418,6 +420,24 @@ func (s *PdfMaroto) Text(text string, prop ...props.Text) {
 	}
 
 	s.TextHelper.Add(text, cell, textProp)
+}
+
+func (s *PdfMaroto) ReaderImage(reader io.Reader, extension consts.Extension, prop ...props.Rect) (err error) {
+	rectProp := props.Rect{}
+	if len(prop) > 0 {
+		rectProp = prop[0]
+	}
+
+	rectProp.MakeValid()
+
+	cell := internal.Cell{
+		X:      s.xColOffset,
+		Y:      s.offsetY + rectProp.Top,
+		Width:  s.colWidth,
+		Height: s.rowHeight,
+	}
+
+	return s.Image.AddFromReader(reader, cell, rectProp, extension)
 }
 
 // FileImage add an Image reading from disk inside a cell.
